@@ -1,0 +1,47 @@
+[
+ {
+  "directory": "C:\\users\\selik\\Documents\\projects\\learnOpenGL",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-I./vendor/glfw-3.3.7_64/include",
+   "-I./vendor/glew-2.1.0/include",
+   "-I./include",
+   "-c",
+   "src/main.cpp",
+   "-o",
+   "build/obj/main.o"
+  ],
+  "file": "src/main.cpp"
+ },
+ {
+  "directory": "C:\\users\\selik\\Documents\\projects\\learnOpenGL",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-I./vendor/glfw-3.3.7_64/include",
+   "-I./vendor/glew-2.1.0/include",
+   "-I./include",
+   "-c",
+   "src/WindowManager.cpp",
+   "-o",
+   "build/obj/WindowManager.o"
+  ],
+  "file": "src/WindowManager.cpp"
+ },
+ {
+  "directory": "C:\\users\\selik\\Documents\\projects\\learnOpenGL",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-I./vendor/glfw-3.3.7_64/include",
+   "-I./vendor/glew-2.1.0/include",
+   "-I./include",
+   "-c",
+   "src/Shader.cpp",
+   "-o",
+   "build/obj/Shader.o"
+  ],
+  "file": "src/Shader.cpp"
+ }
+]

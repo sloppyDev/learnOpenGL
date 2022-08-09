@@ -1,56 +1,20 @@
 #include <iostream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-void framebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-   glViewport(0, 0, width, height);
-}
-
-void escapeCallback(GLFWwindow *window)
-{
-   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-   {
-      glfwSetWindowShouldClose(window, true);
-   }
-}
+#include <cmath>
+#include "WindowManager.h"
+#include "Shader.h"
 
 int main()
 {
-   // -------------------------------
-   // ---- Window Initialization ----
-   // -------------------------------
-   glfwInit();
-   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-   GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-   if (window == NULL)
-   {
-      std::cout << "Failed to create GLFW window!" << std::endl;
-      glfwTerminate();
-      return -1;
-   }
-   glfwMakeContextCurrent(window);
-
-   if (glewInit() != GLEW_OK)
-   {
-      std::cout << "Error initializing GLEW!" << std::endl;
-   }
-
-   glViewport(0, 0, 800, 600);
-   glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-   glClearColor(0.2f, 0.32f, 0.3f, 1.0f);
+   WindowManager wm;
 
    // ------------------
    // ---- Triangle ----
    // ------------------
    float vertices[] = {
-       0.5f,  0.5f, 0.0f,
-       0.5f, -0.5f, 0.0f,
-      -0.5f, -0.5f, 0.0f,
-      -0.5f,  0.5f, 0.0f
+       0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+       0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+      -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+      -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f
    };
    uint32_t indices[] = {
       0, 1, 3,
@@ -73,110 +37,31 @@ int main()
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
    glEnableVertexAttribArray(0);
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+   glEnableVertexAttribArray(1);
 
    // -----------------
    // ---- Shaders ----
    // -----------------
-   // Vertex
-   const char *vertexSource = "#version 330 core\n"
-      "layout (location = 0) in vec3 aPos;\n"
-      "void main()\n"
-      "{\n"
-      "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-      "}\0";
-   uint32_t vertexShader;
-   vertexShader = glCreateShader(GL_VERTEX_SHADER);
+   Shader shader("res/shader.glsl");
 
-   glShaderSource(vertexShader, 1, &vertexSource, NULL);
-   glCompileShader(vertexShader);
-
-   int success;
-   char infoLog[512];
-   glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-   if (!success)
+   // -------------------
+   // ---- Main Loop ----
+   // -------------------
+   while (!glfwWindowShouldClose(wm.window))
    {
-      glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-      std::cout << "Error: Vertex Shader Compilation Failed!\n" << infoLog << std::endl;
-   }
-
-   // Fragment
-   const char *fragmentSource = "#version 330 core\n"
-      "out vec4 FragColor;\n"
-      "\n"
-      "void main()\n"
-      "{\n"
-      "  FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-      "}\0";
-   uint32_t fragmentShader;
-   fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-   glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-   glCompileShader(fragmentShader);
-
-   glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-   if (!success)
-   {
-      glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-      std::cout << "Error: Fragment Shader Compilation Failed!\n" << infoLog << std::endl;
-   }
-
-   // Program
-   uint32_t program;
-   program = glCreateProgram();
-
-   glAttachShader(program, vertexShader);
-   glAttachShader(program, fragmentShader);
-   glLinkProgram(program);
-
-   glGetProgramiv(program, GL_LINK_STATUS, &success);
-   if (!success)
-   {
-      glGetProgramInfoLog(program, 512, NULL, infoLog);
-      std::cout << "Error: Shader Linking Failed!\n" << infoLog << std::endl;
-   }
-
-   glDeleteShader(vertexShader);
-   glDeleteShader(fragmentShader);
-
-   
-   double lastTime = glfwGetTime();
-   double nowTime{0};
-   bool wireframe{false};
-   while (!glfwWindowShouldClose(window))
-   {
-      glClear(GL_COLOR_BUFFER_BIT);
-
-      // Inputs
-      escapeCallback(window);
+      wm.startRender();
 
       // Render
-      nowTime = glfwGetTime();
-      if (nowTime - lastTime > 1.0)
-      {
-         wireframe = !wireframe;
-         lastTime = nowTime;
-      }
-
-      if (wireframe)
-      {
-         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      }
-      else
-      {
-         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      }
-      glUseProgram(program);
+      shader.bind();
       glBindVertexArray(vao);
       glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
       glBindVertexArray(0);
 
-      //Events and Buffer Swap
-      glfwSwapBuffers(window);
-      glfwPollEvents();
+      wm.stopRender();
    }
 
-   glfwTerminate();
    return 0;
 }
