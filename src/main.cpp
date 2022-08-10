@@ -2,9 +2,11 @@
 #include <cmath>
 #include "WindowManager.h"
 #include "Shader.h"
+#include "Texture.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "vec3.h"
+#include "vec4.h"
+#include "mat4.h"
 
 int main()
 {
@@ -50,35 +52,30 @@ int main()
    // -----------------
    // ---- Texture ----
    // -----------------
+   Texture texture("res/textures/container.jpg", true);
 
-   uint32_t texture;
-   glGenTextures(1, &texture);
-   glBindTexture(GL_TEXTURE_2D, texture);
-
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-   int width, height, nrChannels;
-   std::string texPath = "res/textures/container.jpg";
-   stbi_set_flip_vertically_on_load(true);
-   unsigned char* data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
-   if (data)
-   {
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-      glGenerateMipmap(GL_TEXTURE_2D);
-   }
-   else
-   {
-      std::cout << "Failed to load texture - " << texPath << " !" << std::endl;
-   }
-   stbi_image_free(data);
-   
    // -----------------
    // ---- Shaders ----
    // -----------------
    Shader shader("res/shaders/shader.glsl");
+
+   // --------------------
+   // ---- Math Tests ----
+   // --------------------
+   vec4 testVec;
+   mat4 testMat;
+   rot4 testRot(vec3(90.0f, 0.0f, 0.0f));
+   scale4 testScale(vec3(1.0f, 2.0f, 3.0f));
+   tran4 testTrans(vec3(4.0f, 3.0f, 2.0f));
+
+   testVec.print();
+   testMat.print();
+   testRot.print();
+   testScale.print();
+   testTrans.print();
+
+   (testTrans*testScale).print();
+
 
    // -------------------
    // ---- Main Loop ----
@@ -89,7 +86,7 @@ int main()
 
       // Render
       shader.bind();
-      glBindTexture(GL_TEXTURE_2D, texture);
+      texture.bind(0);
       glBindVertexArray(vao);
       glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
       glBindVertexArray(0);

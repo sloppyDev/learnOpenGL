@@ -17,7 +17,7 @@ struct WindowManager
    void escapeCallback();
 
    GLFWwindow *window;
-   unsigned int width, height;
+   uint32_t width, height;
    const std::string name;
 };
 #endif
